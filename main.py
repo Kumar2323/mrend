@@ -267,7 +267,7 @@ async def delete_collection_prompt(client, callback_query: CallbackQuery):
     mongo_client = user_sessions[callback_query.from_user.id]["mongo_client"]
     databases = await get_database_names(mongo_client)
     keyboard = []
-        for db in databases:
+    for db in databases:
         keyboard.append([InlineKeyboardButton(db, callback_data=f"del_coll_db:{db}")])
     keyboard.append([InlineKeyboardButton("Cancel", callback_data="manage_collections")])
     await callback_query.edit_message_text("Select a database to delete a collection from:", reply_markup=InlineKeyboardMarkup(keyboard))
