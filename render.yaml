@@ -1,5 +1,5 @@
 services:
-  - type: web
+  - type: worker
     name: mongodb-bot
     runtime:
       version: '3.9.5'
@@ -7,8 +7,4 @@ services:
       API_ID: ${API_ID}
       API_HASH: ${API_HASH}
       BOT_TOKEN: ${BOT_TOKEN}
-    ports:
-      - port: 80
-        targetPort: 8080
-    healthcheck:
-      disabled: true
+    command: python main.py
