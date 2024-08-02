@@ -227,7 +227,7 @@ async def confirm_delete_database(client, callback_query: CallbackQuery):
         [InlineKeyboardButton("Yes, delete database", callback_data=f"execute_delete_db:{db_name}")],
         [InlineKeyboardButton("No, cancel", callback_data="manage_databases")]
     ])
-    await callback_query.edit_message_text(f"Are you sure you want to delete the database '{db_name}'?", reply_markup=keyboard)
+    await callback_query.edit_message_text(f"Are you sure you want to delete the database '{db_name}'? This action cannot be undone.", reply_markup=keyboard)
 
 @app.on_callback_query(filters.regex("^execute_delete_db:"))
 async def execute_delete_database(client, callback_query: CallbackQuery):
@@ -291,7 +291,7 @@ async def confirm_delete_collection(client, callback_query: CallbackQuery):
         [InlineKeyboardButton("Yes, delete collection", callback_data=f"execute_delete_coll:{db_name}:{coll_name}")],
         [InlineKeyboardButton("No, cancel", callback_data=f"del_coll_db:{db_name}")]
     ])
-    await callback_query.edit_message_text(f"Are you sure you want to delete the collection '{coll_name}' from database '{db_name}'?", reply_markup=keyboard)
+    await callback_query.edit_message_text(f"Are you sure you want to delete the collection '{coll_name}' from database '{db_name}'? This action cannot be undone.", reply_markup=keyboard)
 
 @app.on_callback_query(filters.regex("^execute_delete_coll:"))
 async def execute_delete_collection(client, callback_query: CallbackQuery):
@@ -385,7 +385,7 @@ async def confirm_delete_all(client, callback_query: CallbackQuery):
         [InlineKeyboardButton("No, cancel", callback_data=f"coll:{db_name}:{coll_name}")]
     ])
     await callback_query.edit_message_text(
-        f"Are you sure you want to delete all documents from {db_name}.{coll_name}?",
+        f"Are you sure you want to delete all documents from {db_name}.{coll_name}? This action cannot be undone.",
         reply_markup=keyboard
     )
 
@@ -394,9 +394,7 @@ async def execute_delete_all(client, callback_query: CallbackQuery):
     _, db_name, coll_name = callback_query.data.split(":")
     mongo_client = user_sessions[callback_query.from_user.id]["mongo_client"]
     deleted_count = await delete_all_documents(mongo_client, db_name, coll_name)
-    await callback_query.edit_message_text(
-        f"Deleted {deleted_count} documents from {db_name}.{coll_name}."
-    )
+    await callback_query.edit_message_text(f"Deleted {deleted_count} documents from {db_name}.{coll_name}.")
 
 @app.on_callback_query(filters.regex("^main_menu$"))
 async def back_to_main_menu(client, callback_query: CallbackQuery):
@@ -427,23 +425,13 @@ async def main():
     await site.start()
 
     print("Bot started")
-    await idle()
+    await asyncio.Future()
 
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     try:
         loop.run_until_complete(main())
     except KeyboardInterrupt:
-        pass
-    finally:
         loop.run_until_complete(app.stop())
         loop.close()
-
-
-
-
-
-
-
-
 
