@@ -7,12 +7,9 @@ services:
       API_ID: ${API_ID}
       API_HASH: ${API_HASH}
       BOT_TOKEN: ${BOT_TOKEN}
-      MONGO_URI: ${MONGO_URI}
     ports:
       - port: 80
         targetPort: 8080
     healthcheck:
       http:
         path: /
-    envFile:
-      -.env
