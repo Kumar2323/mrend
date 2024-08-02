@@ -145,7 +145,7 @@ async def handle_text_input(client, message: Message):
                 update_data = json.loads(message.text)
                 modified_count = await update_document(session["mongo_client"], db_name, coll_name, update_filter, update_data)
                 await message.reply_text(f"Update complete. Modified {modified_count} document(s).")
-                        elif state == "awaiting_delete":
+            elif state == "awaiting_delete":
                 db_name = session["db"]
                 coll_name = session["coll"]
                 delete_filter = json.loads(message.text)
@@ -188,7 +188,7 @@ async def manage_documents(client, callback_query: CallbackQuery):
         [InlineKeyboardButton("Search Documents", callback_data="search_documents")],
         [InlineKeyboardButton("Insert Document", callback_data="insert_document")],
         [InlineKeyboardButton("Update Document", callback_data="update_document")],
-                [InlineKeyboardButton("Delete Document", callback_data="delete_document")],
+        [InlineKeyboardButton("Delete Document", callback_data="delete_document")],
         [InlineKeyboardButton("Delete All Documents", callback_data="delete_all_documents")],
         [InlineKeyboardButton("Back to Main Menu", callback_data="main_menu")]
     ])
