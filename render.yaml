@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: mongodb-bot
+    runtime:
+      version: '3.9.5'
+    env:
+      API_ID: your_telegram_api_id
+      API_HASH: your_telegram_api_hash
+      BOT_TOKEN: your_telegram_bot_token
+      MONGO_URI: your_mongodb_connection_string
+    ports:
+      - port: 80
+        targetPort: 8080
+    healthcheck:
+      http:
+        path: /
+    envFile:
+      -.env
