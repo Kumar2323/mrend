@@ -107,7 +107,7 @@ async def handle_text_input(client, message: Message):
                     [InlineKeyboardButton("Manage Collections", callback_data="manage_collections")],
                     [InlineKeyboardButton("Manage Documents", callback_data="manage_documents")]
                 ])
-                                await message.reply_text("Connected successfully! Please select an option:", reply_markup=keyboard)
+                await message.reply_text("Connected successfully! Please select an option:", reply_markup=keyboard)
                 session["state"] = "main_menu"
             elif state == "awaiting_new_db_name":
                 new_db_name = message.text
