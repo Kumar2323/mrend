@@ -406,8 +406,37 @@ async def back_to_main_menu(client, callback_query: CallbackQuery):
     ])
     await callback_query.edit_message_text("Please select an option:", reply_markup=keyboard)
 
-print("Advanced MongoDB Bot with user-specific MongoDB URL support is starting...")
-app.run()
+async def handle(request):
+    return web.Response(text="Bot is running")
+
+async def web_server():
+    web_app = web.Application()
+    web_app.router.add_get("/", handle)
+    return web_app
+
+async def main():
+    await app.start()
+
+    # Start web server
+    port = int(os.environ.get("PORT", 8080))
+    web_app = await web_server()
+    web_runner = web.AppRunner(web_app)
+    await web_runner.setup()
+    site = web.TCPSite(web_runner, "0.0.0.0", port)
+    await site.start()
+
+    print("Bot started")
+    await idle()
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        pass
+    finally:
+        loop.run_until_complete(app.stop())
+        loop.close()
 
 
 
