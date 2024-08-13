@@ -1,4 +1,3 @@
-import os
 from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -7,6 +6,8 @@ from bson.objectid import ObjectId
 import json
 import asyncio
 from aiohttp import web
+import humanize
+import os
 
 API_ID = os.environ.get("API_ID")
 API_HASH = os.environ.get("API_HASH")
@@ -191,9 +192,24 @@ async def manage_documents(client, callback_query: CallbackQuery):
         [InlineKeyboardButton("Update Document", callback_data="update_document")],
         [InlineKeyboardButton("Delete Document", callback_data="delete_document")],
         [InlineKeyboardButton("Delete All Documents", callback_data="delete_all_documents")],
+        [InlineKeyboardButton("Total Size", callback_data="total_size")],
         [InlineKeyboardButton("Back to Main Menu", callback_data="main_menu")]
     ])
     await callback_query.edit_message_text("Document Management Options:", reply_markup=keyboard)
+
+@app.on_callback_query(filters.regex("^total_size$"))
+async def get_total_size(client, callback_query: CallbackQuery):
+    mongo_client = user_sessions[callback_query.from_user.id]["mongo_client"]
+    db_name = user_sessions[callback_query.from_user.id]["db"]
+    coll_name = user_sessions[callback_query.from_user.id]["coll"]
+    db = mongo_client[db_name]
+    collection = db[coll_name]
+    total_size = 0
+    for file in await collection.find().to_list(length=None):
+        if "file_size" in file:
+            total_size += file["file_size"]
+    humanized_size = humanize.naturalsize(total_size)
+    await callback_query.edit_message_text(f"Total size of stored files: {humanized_size}")
 
 @app.on_callback_query(filters.regex("^list_databases$"))
 async def list_databases_callback(client, callback_query: CallbackQuery):
@@ -310,8 +326,10 @@ async def show_collection_options(client, callback_query: CallbackQuery):
         [InlineKeyboardButton("Update Document", callback_data=f"update:{db_name}:{coll_name}")],
         [InlineKeyboardButton("Delete Document", callback_data=f"delete:{db_name}:{coll_name}")],
         [InlineKeyboardButton("Delete All Documents", callback_data=f"delete_all:{db_name}:{coll_name}")],
+        [InlineKeyboardButton("Total Size", callback_data="total_size")],
         [InlineKeyboardButton("Back to Collections", callback_data=f"db:{db_name}")]
     ]
+    user_sessions[callback_query.from_user.id].update({"db": db_name, "coll": coll_name})
     await callback_query.edit_message_text(f"Options for {db_name}.{coll_name}:", reply_markup=InlineKeyboardMarkup(keyboard))
 
 @app.on_callback_query(filters.regex("^view:"))
@@ -434,4 +452,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         loop.run_until_complete(app.stop())
         loop.close()
-
